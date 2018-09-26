@@ -1,32 +1,65 @@
 #!/usr/bin/env python
 # /home/atollye/current/programming_exercises/3_bars/bars.py
-import os, json, re, pprint
-from geopy import distance
 
-PATH_TO_JSON_FILE = os.path.join(
-                      os.path.dirname(os.path.abspath(__file__)), "bars.json")
-USER_LOCATION = (55.8008475, 37.7751393)
+
+
+import os, sys, json, re, pprint
+from geopy import distance
+import math
+
+DEFAULT_PATH = os.path.join(os.path.dirname
+                                  (os.path.abspath(__file__)), "bars.json")
+
 
 
 def get_path_from_user():
-    message_1 = """ Введите путь к файлу с данными по барам или нажмите Enter,
-    чтобы использовать путь по умолчанию
-    """
-    inpt = input(message_1)
-    if inpt is correct:
-        pth = inpt
-    return inpt
+    message_1 = """\nПоскольку вы не указали путь к файлу с данными, будет использован путь по умолчанию: {} " \n"""
+    try:
+        pth = sys.argv[1]
+    except IndexError:
+        pth = DEFAULT_PATH
+        print(message_1.format(pth))
+    return(pth)
 
 def get_location_from_user():
-    message_2 = \
-    """Введите координаты интересующего вас места в формате "широта, долгота" 
-    в градусах, с точностью 6 знаков после запятой\n
-    Пример:   55.752805, 37.622635   """
-    inpt = input(message)
-    lat, lon = inpt.trim().split()
-    coord_regex = "" ""
-    if not re.match(coord_regex, lat) and re.match(coord_regex, lon):
-        print("Данные введены в неверном формате")
+    print("""\nВведите координаты интересующего вас места в градусах в формате десятичной с точностью 6 знаков после точки. \n Пример:\n Введите широту: 55.752805\n Введите долготу: 37.622635\n\n""")
+
+    while True:
+        lon = input("Введите долготу:")
+        lat = input("Введите широту: ")
+        try:
+            lat = float(input("Введите долготу"))
+            lon = float(input("Введите широту"))
+        except ValueError:
+            print("Вы ввели данные, которые не являются координатами")
+            continue
+        coords =  check_latitide_coord(lat), check_longitude_coord(lon)
+        if all(coords):
+            break
+    return coords
+
+
+def check_latitide_coord(lat):
+    # широта от −90° до +90°,
+    coord_regex = re.compile(r"(-)?\d\d[\.\,]\d\d\d\d\d\d")
+    if re.match(coord_regex, lat) and -90 <=math.trunc(lat) <=90:
+        lat = re.match(coord_regex, lat)
+    else:
+        lat = None
+        try:
+            lat = float(input("Введите долготу"))
+            lon = float(input("Введите широту"))
+        except ValueError:
+            print("Вы ввели данные, которые не являются координатами")
+            continue
+
+def check_longitude_coord(longt):
+    #долгота от −180° до +180°
+    coord_regex = re.compile(r"(-)?\d\d(\d)?[\.\,]\d\d\d\d\d\d")
+    if re.match(coord_regex, longt) and -90 <=math.trunc(lat) <=90:
+        lon = re.match(coord_regex, longt)
+    else:
+        longt = None
 
 
 def load_data(filepath):
@@ -73,9 +106,5 @@ def get_closest_bar(data, longitude, latitude):
 
 
 if __name__ == '__main__':
-    get_path_from_user()
-    get_location_from_user()
-    load_data(filepath)
-    get_biggest_bar(data)
-    get_smallest_bar(data)
-    get_closest_bar(data, longitude, latitude)
+    print(check_latitide_coord())
+
