@@ -4,7 +4,7 @@
 
 
 import os, sys, json, re, pprint
-from geopy import distance
+#from geopy import distance
 
 DEFAULT_PATH = os.path.join(os.path.dirname
                                   (os.path.abspath(__file__)), "bars.json")
@@ -68,13 +68,18 @@ def check_longitude(inpt):
     return lon
 
 
-def load_data(filepath):
+def load_data():
+#def load_data(filepath):
+    filepath = r"/home/atollye/3_bars/bars.json"
+ #   FileNotFoundError: [Errno 2] No such file or directory: '/home/atollye/3_bars/bars.json'
     #обернуть исключениями
     with open(filepath, "r") as file:
         raw_json = json.load(file)
+        
+        
     # bars = raw_json["features"] #если на верхнем уровне словарь    
-    bars = list(raw_json["features"])
-    return bars
+    #bars = list(raw_json["features"])
+   # return bars
 
 
 
@@ -126,8 +131,7 @@ def main():
 
 
 if __name__ == '__main__':
-    print("\n")
-    print(get_coordinates_from_user())
+    load_data()
     
 
 
