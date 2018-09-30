@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # /home/atollye/current/programming_exercises/3_bars/bars.py
 
-
-
-import os, sys, json, re, pprint
+import os
+import sys
+import re
+import json
+# import pprint
 from geopy import distance
 
-DEFAULT_PATH = os.path.join(os.path.dirname
-                                  (os.path.abspath(__file__)), "bars.json")
+DEFAULT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                                 "bars.json")
 
 
 
@@ -19,6 +21,17 @@ def get_path_to_data_file():
         pth = DEFAULT_PATH
         print(message_1.format(pth))
     return(pth)
+
+def load_data(filepath):
+    try:
+        with open(filepath, "r") as file: 
+            raw_json = json.load(file)
+            print("File loaded")
+    except json.JSONDecodeError:
+        print("It's not a json file")
+        raw_json = None
+    return raw_json
+
 
 def get_coordinates_from_user():
     print("""\nВведите координаты интересующего вас места (в градусах в формате десятичной \nдроби с точностью 6 знаков после точки). \n\nПример:\nШирота 55.752805\nДолгота 37.622635\n\n""")
@@ -60,23 +73,13 @@ def check_longitude(inpt):
         lon = float(match.group())
     else:
         lon = None
-        # print("\nВы ввели неверные данные\n")
     #долгота должна быть от −180° до +180°
     if lon and (lon <=-180 or lon>=180):
-        # print("\nВы ввели несуществующую долготу\n")
         lon = None
     return lon
 
 
-def load_data(filepath):
-    #обернуть исключениями
-    with open(filepath, "r") as file:
-        raw_json = json.load(file)
-    # bars = raw_json["features"] #если на верхнем уровне словарь    
-    bars = list(raw_json["features"])
-    return bars
-
-
+    
 
 def get_biggest_bar(data):
     """
@@ -95,18 +98,14 @@ def get_biggest_bar(data):
                                  min(bars_dct.values()), bars_dct)
     print(""" "%s" (%s seats) \n""" % (bar, seats_count))
 
-
-
 def get_smallest_bar(data):
     bars_dct = dict(zip(bar_names, bar_sizes))
     smallest= filter(lambda key: bars_dct[key] ==
                                  min(bars_dct.values()), bars_dct)
     print(""" "%s" (%s seats) \n""" % (bar, seats_count))
-
-
-
-def get_closest_bar(user_coords, data):
-#    distances = {"bar_name1": distance1, "bar_name2": distance2,}
+    
+def get_nearest_bar(user_coords, data):
+    # distances = {"bar_name1": distance1, "bar_name2": distance2,}
     for bar in bars:
         bar_coords = bar[1], bar[2]
         distance_to_bar = distance.distance(user_coords, bar_coords).km
@@ -115,20 +114,47 @@ def get_closest_bar(user_coords, data):
     nearest_bar = min(bars, key=lambda x: x[4])
     print(""" "%s" (%s seats) \n""" % (bar, seats_count))
 
+def printout(bar_list):
+    pass
 
+def error_exit(message=""):
+    print(message)
+    print("Попробуйте перезапустить скрипт и ввести данные заново")
+    sys.exit()
 
 def main():
-    # path_to_data = get_path_to_data_file()
-    # coords = get_coordinates_from_user()
-    # if not all(coords):
-    #     sys.exit()
-    inpt = input("Введите долготу:  ")
+    path_to_data = get_path_to_data_file()
+    if not os.path.exists(path_to_data):
+        error_exit("Файл с данными не существует")
+    raw_json = load_data(path_to_data)
+    if not raw_json:
+        error_exit("Данные в файле не соответствуют формату json")
+    if not check_data_structure(raw_json):
+        error_exit("Данный json файл не содержит данные о барах в требуемом формате. Возможно, он поврежден или получен из другого источника")
+    bars = raw_json["features"]
+
+    printout(get_smallest_bar(bars))
+    printout((get_biggest_bar(bars)))
+
+    coordinates = get_coordinates_from_user()
+    if not coordinates[0]:
+        error_exit("\nВы ввели несуществующую широту\n")
+    elif not coordinates[1]:
+        error_exit(("\nВы ввели несуществующую долготу\n"))
+    
+    printout(get_nearest_bar(coordinates, bars))
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
-    print("\n")
-    print(get_coordinates_from_user())
-    
+
+:
+
 
 
 
